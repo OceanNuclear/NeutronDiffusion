@@ -84,10 +84,12 @@ We also make the assumption that all neutron reactions that aren't elastically s
 Duderstadt and Hamilton made several simplifications that makes Equation~\ref{eq:FullTransportEq} soluble.
 
 \subsection{Removing time-dependence and fission sources}
-The assumption of time-independence and lack of fission sources in the media removes the leftmost and rightmost terms in Equation~\ref{eq:FullTransportEq}, giving:
+The assumption of steady state operation and lack of fission sources in the media removes the leftmost and rightmost terms in Equation~\ref{eq:FullTransportEq}, giving:
 \begin{equation}\label{eq:TransportEq3Terms}
-    \hat{\boldsymbol{\Omega}}\cdot\boldsymbol{\nabla}\phi + \Sigma_t \phi =\Sigma_s \phi
+    \hat{\boldsymbol{\Omega}}\cdot\boldsymbol{\nabla}\phi + \Sigma_t \phi =\Sigma_s \phi\,,
 \end{equation}
+
+$\phi$ is now only implicitly dependent on angle ($\boldsymbol{\Omega}$), neutron energy, and position ($\boldsymbol{r}$); but is time-invariant.
 
 \subsection{Simplifying the streaming term}
 Then, to turn the streaming term into something manageable, the neutron flux is assumed to be isotropic everywhere.
@@ -148,16 +150,22 @@ Since we have only one group (group $1$) here, $\Sigma_s\equiv \Sigma_{s(1\right
 
 (Note that the diffusion coefficient $D$ and macroscopic cross-sections $\Sigma_s$ and $\Sigma_t$ are going to be different in the first wall v.s. in the blanket, hence there are two different k, denoted $k_{FW}$ and $k_{BZ}$.)
 
-To make iterating the boundary conditions easier, let's express the thickness of the first wall and thickness of the blanket as ``first wall thickness'' = $x_{FW}$, ``blanket thickness'' = $x_{BZ} - x_{FW}$, such that the interface between the blanket and the vacuum boundary is located at $x_{BZ}$.
+To make iterating the boundary conditions easier, let's express the thickness of the first wall and thickness of the blanket as ``first wall thickness'' = $x_{FW}$, ``blanket thickness'' = $x_{BZ} - x_{FW}$, such that the interface between the blanket and the vacuum boundary is located at $x_{BZ}$, as denoted in Figure~\ref{fig:collapsed_geometry}.
 
 \begin{itemize}
-    \item Total number of reactions + Escaped flux = $\boldsymbol{f}$.
+    \item Total number of reactions + Escaped neutrons $= \boldsymbol{f}$.
     \begin{itemize}
-        \item Escaped flux $= \frac{-\phi(x)}{2D}$, where the $D$ is the diffusion coefficient for neutrons in the blanket. (given by \cite{Duderstadt})
+        \item Escaped flux $= \frac{\phi_i(x)}{2}$.
+        \item Total number of (neutron-removing) reactions is the sum of all reactions excluding scattering reactions.
+        \begin{align}
+        \text{Total number of reactions per unit area} &= \int_{x>0}^{x=x_{FW}} \sum_i (\Sigma_{t,i} - \Sigma_{s,i}) \phi_i(x) dx\,,
+        \intertext{in the one-group scenario, this is given by}
+        \text{Total number of reactions per unit area} &= \int_{x>0}^{x=x_{FW}} (\Sigma_t - \Sigma_s) \phi(x) dx\,.
+        \end{align}
     \end{itemize}
     \item flux continuity at the first-wall-blanket interface $x_{FW}$.
     \item flux from first wall to blanket = flux from blanket to first wall at the interface interface $x_{FW}$.
-    \item at distance $\delta = \lambda_{tr}$ past the vacuum boundary, $\phi(x_{BZ} + \delta) = 0$. (given by \cite{Duderstadt})
+    \item at distance $\delta = 0.71??? \lambda_{tr}$ past the vacuum boundary, $\phi(x_{BZ} + \delta) = 0$. (given by \cite{Duderstadt})
 \end{itemize}
 
 \section{Multi-group solution}

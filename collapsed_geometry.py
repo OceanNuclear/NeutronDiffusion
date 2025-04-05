@@ -1,6 +1,11 @@
 import matplotlib.pyplot as plt
 from numpy import array as ary
 import numpy as np
+import matplotlib.pyplot as mpl
+plt.rcParams['pgf.preamble'] = r'\usepackage{amsmath}'  # for \text command as well
+plt.rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'  # for \text command
+plt.rcParams['text.usetex'] = True  # use TeX to render everything
+plt.rcParams['font.family'] = 'STIXGeneral'  # correct font!
 
 np.random.seed(7)
 rand_range = np.random.uniform
@@ -11,7 +16,15 @@ y_range = [HEIGHT, HEIGHT]
 
 if __name__=="__main__":
     ax = plt.subplot()
-    ax.set_axis_off()
+    # ax.set_axis_off()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    # x_axis = ax.get_xaxis()
+    ax.set_xticks([-0.4, -0.1, 0, 0.1, 0.4], [r"-$x_{BZ}$", r"-$x_{FW}$", 0, r"$x_{FW}$", r"$x_{BZ}$"])
+
     ax.plot([0,0], [0, HEIGHT], color="red")
     for x_sign in (-1, 1):
         ax.fill_between(x_sign * ary([0.0,0.1]), y_range, color="C0")

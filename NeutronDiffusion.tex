@@ -1,0 +1,170 @@
+%`
+%\nonstopmode
+\hbadness=100000
+\documentclass[a4paper, 12pt]{article}
+\usepackage{amsmath,amsfonts,caption,float,geometry,graphicx,mathtools,pythonhighlight,textcomp,url,verbatim,subcaption,tabularx, longtable, ulem, hyperref, tikz} %,parskip
+\geometry{ a4paper, total={170mm,257mm}, left=20mm, top=20mm}
+\newcommand{\uul}[1]{\underline{\underline{#1}}}
+\newcommand{\matr}[1]{\uul{\textbf{#1}}}
+\newcommand{\apriori}[0]{\textit{a priori}}
+\newcommand{\ve}[1]{\boldsymbol{#1}}
+\newcommand{\pythoncode}[2]{
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\begin{adjustwidth}{-1.3cm}{-1.3cm}
+\texttt{#1}
+\inputpython{#2}{1}{1500}
+\end{adjustwidth}
+}
+\usepackage[toc, page]{appendix}
+
+\begin{document}
+    
+\begin{table}[!h]
+\centering
+\begin{tabular}{rl}
+author:&Ocean Wong          \\
+date:  &April 2025       \\
+Organization:&Culham Centre for Fusion Energy
+\end{tabular}
+\end{table}
+\hrule
+\begin{abstract}
+    To calculate crude approximations of the neutron flux(es) in the first wall and blanket of a fusion reactor in a reactor-design-agnostic manner, a semi-infinite model of the fusion neutron source, first-wall, and blanket are created. The one-group neutron transport equation is solved analytically while the multi-group neutron transport equation is solved numerically.
+\end{abstract}
+\emph{Keywords:} semi-infinite slab, fusion neutronics
+
+\section{Simplification of the PROCESS model}
+We would like to implement an elementary way of approximating the number of neutrons passing through and absorbed by the first wall and blanket of a fusion reactor in the reactor systems code PROCESS. Since most of PROCESS's plasma simulation models uses 1D model, with ``radial distance from the center of the plasma'' as the only coordinate, it is sensible to follow the same convention when performing our neutronics calculation, and assume that we are working with a cylindrical model (Figure~\ref{fig:radial_plot}).
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{radial_plot.pdf} %Stupid latex doesn't allow two dots in the filename.
+\caption{The x-z cross-section of an example neutronics model appropriate for PROCESS.} \label{fig:radial_plot}
+\end{figure}
+
+Solving the neutron flux on this model using Equation~\ref{eq:TransportEqFicksLaw} would yield a sum involving Airy functions, which is a complex function not typically found in numerical solver packages.
+Therefore, we choose to further simplify the geometry represented by Figure~\ref{fig:radial_plot}. By taking a horizontal slice of the figure at the plane of symmetry, we get:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{semiinfinite_plot.pdf} %Stupid latex doesn't allow two dots in the filename.
+\caption{A simple x cross-section of the an example neutronics model appropriate for PROCESS, obtained by taking a horiztonal slice of Figure~\ref{fig:radial_plot}.} \label{fig:semiinfinite_plot}
+\end{figure}
+
+Since the plasma only acts as a neutrons source, and is otherwise transparent to neutrons (i.e. neutrons passing through the plasma do not change direction), we can collapse the space between the left and right first wall, and approximate the plasma neutron source as a planar source instead (Figure~\ref{fig:collapsed_geometry}):
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{collapsed_geometry.pdf} %Stupid latex doesn't allow two dots in the filename.
+\caption{A simple x cross-section of the an example neutronics model appropriate for PROCESS, obtained by collapsing the neutron-transparent space in Figure~\ref{fig:semiinfinite_plot}. The blanket and first wall extends infinitely in the other two directions, i.e. vertically (up/down) and in/out of the page.} \label{fig:collapsed_geometry}
+\end{figure}
+
+Thus figure 3 represent a semi-infinite slab (finite thickness in the x-direction, but extends infinitely in the y- and z-directions).
+
+The neutron transport equation is given by \cite{Duderstadt} in full as:
+\begin{equation}\label{eq:FullTransportEq}
+    \underbrace{\frac{1}{v}\frac{d\phi}{dt}}_{\text{time-dependence}} +
+    \underbrace{\hat{\boldsymbol{\Omega}}\cdot\boldsymbol{\nabla}\phi}_{\text{streaming}} +
+    \underbrace{\Sigma_t \phi}_{\text{collision/removal}} =
+    \underbrace{\Sigma_s \phi}_{\text{scattering-in from other energy groups}} +
+    \underbrace{\boldsymbol{S}}_{\text{other sources}}\,.
+\end{equation}
+All terms in Equation~\ref{eq:FullTransportEq} are implicitly dependent on angle ($\boldsymbol{\Omega}$), neutron energy, position ($\boldsymbol{r}$), and time.
+
+\section{Simplification of the neutron transport equation}
+Some of the variables are explained below:
+\begin{itemize}
+    \item $\Sigma_t = $ total macroscopic cross-section
+    \item $\Sigma_s = $ (elastic) scattering macroscopic cross-section
+    \item $\Sigma_i = $ macroscopic cross-section of reaction $i$ $= n_d \sigma_i = $ number density $\times$ microscopic cross-section of reaction $i$. Number density can be obtained by $N_d=\frac{N_A}{A}\rho=\frac{\text{Avogadro's number}}{\text{atomic number}}\times\text{density}$.
+\end{itemize}
+
+We also make the assumption that all neutron reactions that aren't elastically scattered are considered absorbed/lost due to transmutation, and that the fraction of atoms transmuted is insignificant for changing the neutronics properties of the material.
+
+Duderstadt and Hamilton made several simplifications that makes Equation~\ref{eq:FullTransportEq} soluble.
+
+\subsection{Removing time-dependence and fission sources}
+The assumption of time-independence and lack of fission sources in the media removes the leftmost and rightmost terms in Equation~\ref{eq:FullTransportEq}, giving:
+\begin{equation}\label{eq:TransportEq3Terms}
+    \hat{\boldsymbol{\Omega}}\cdot\boldsymbol{\nabla}\phi + \Sigma_t \phi =\Sigma_s \phi
+\end{equation}
+
+\subsection{Simplifying the streaming term}
+Then, to turn the streaming term into something manageable, the neutron flux is assumed to be isotropic everywhere.
+This is not entirely true in our case, where the neutron emitted from the plasma monoenergetic neutron source is assumed to be a narrow band of 14.1 MeV neutrons, such that neutrons streaming in the horizontal direction (perpendicular to the plane source in Figure~\ref{fig:collapsed_geometry}) will preferentially travel further, meaning that, far away from the neutron source, the distribution of neutron directions forms a spike pointed to the left/right, rather than a spherical cloud. However, this is deemed as an acceptable simplification required to proceed with the derivation.
+This converts the ``neutron transport equation'' into a ``neutron diffusion equation'':
+\begin{equation}\label{eq:TransportEqFicksLaw}
+    -D\boldsymbol{\nabla}^2\phi + \Sigma_t \phi =\Sigma_s \phi\,.
+\end{equation}
+
+Note that the neutron flux profiles generated by solving Equation~\ref{eq:TransportEqFicksLaw} differs from the neutron flux profile generated by solving Equation~\ref{eq:FullTransportEq} near locations of abrupt changes, such as within several $\lambda_{tr}$ around the plane source or the vacuum boundary. However, this difference is only minute, as stated in p.159-160 of \cite{Duderstadt}.
+
+The left most term is described as the Fick's Law term due to its visual similarity to the Fick's Law of Diffusion, despite its diffusion coefficient $D$ (defined in Section~\ref{sec:discretize}) having a different dimensionality (length) than when it appears in other fields of physics (area per unit time).
+
+\subsection{Discretizing into energy groups}\label{sec:discretize}
+The final step is to discretize the neutron spectrum into different energy groups, such that for each group's flux $\phi_i$, $\Sigma_t$ and $\Sigma_s$ are scalars, rather than functions requiring interpolation. (Note that $\phi_i$ is still implicitly dependent on position $\boldsymbol{r}$.) The larger the group number $i$, the higher the neutron lethargy, i.e. the less energy it has. (Remember that neutron lethargy is defined as $ln(\frac{E_0}{E})$, where $E_0$ is the initial energy of the neutron at its creation).
+
+Assuming that neutrons can only downscatter (i.e. neutron energy $\gg$ thermal energy of the medium), we only have to sum up\footnote{Beware of confusion between summation sign $\sum$ and the macroscopic-cross-section sign $\Sigma$. It should be easy to tell them apart from context.} all of the scattered-in neutrons from higher energy neutrons.
+
+\begin{equation}\label{eq:TransportEqFicksLawGroupwise}
+    -D\boldsymbol{\nabla}^2\phi_i + \Sigma_t \phi_i =\sum_j^{j\le i} \Sigma_{s(i\rightarrow j)} \phi_j\,.
+\end{equation}
+
+The diffusion coefficient $D$ is given by \cite{Duderstadt} as:
+\begin{equation}
+    D = \frac{1}{3\Sigma_{tr}} = \frac{\lambda_{tr}}{3} = \frac{1}{3(\Sigma_t - \frac{2}{3A}{\Sigma_s})}\,,
+\end{equation}
+
+where
+\begin{itemize}
+    \item $A$ is, as mentioned above, the atomic number of the medium being travelled through by the neutrons;
+    \item $\lambda_{tr}$ is known as the mean-free-path of neutrons (for the given energy group and medium);
+    \item $\Sigma_s$ is the sum of all scattering cross-sections from the current group $i$ down to all energy groups $j$ ($\Sigma_{s(i\rightarrow j)}$, where $j\ge i$, since upscatter is assumed impossible).
+\end{itemize}
+
+\subsection{Taking advantage of the symmetry in y- and z-direction}
+Finally, we can remove the dependence on the other two spatial dimension, such that the diffusion equation can be simplified as:
+\begin{align}
+    -D \frac{d^2}{dx^2}\phi_i(x) + \Sigma_t \phi_i(x) &= \sum_j^{j\le i} \Sigma_{s(i\rightarrow j)} \phi_j(x)\\
+    D \frac{d^2}{dx^2}\phi_i(x) &= \Sigma_t \phi_i(x)  -\sum_j^{j\le i} \Sigma_{s(i\rightarrow j)} \phi_j(x)\,.\label{eq:TransportEqX}
+\end{align}
+
+Now that the spatial dependence is more explicitly written ($\phi_i(x)$), we can begin solving for the solution.
+
+\section{One-group solution}
+If we assume the cross-sections for scattering and other reactions remains constant throughout the entire neutron spectrum, then we can re-use the same scalar values of $\Sigma_t$ and $\Sigma_s$ for all of the neutrons. Considering that we are evaluating the neutron flux emitted at $x=0$, propagating left and right into a purely-absorbing (i.e. non-fissile) medium (refer to Figure~\ref{fig:collapsed_geometry}), it is intuitive that the solution is some form of exponential decay on both sides of the source, where the neutron flux the further it travels into the first wall and blanket. And indeed, by applying the appropriate boundary conditions, we can obtain that result.
+
+Let the incident neutron flux on the first wall be $\boldsymbol{f}$ (SI unit: m$^{-2}$s$^{-1}$). Examining only the right-hand-side (i.e. $x>0$) of the model, we can derive the following:
+
+\begin{equation}
+    D \frac{d^2}{dx^2}\phi(x) = (\Sigma_t - \Sigma_s) \phi(x)\,,
+\end{equation}
+since both sides of the equation are positive,
+\begin{equation}
+    \phi(x) = c_1 e^{kx} + c_2 e^{-kx}\,,
+\end{equation}
+where $k=\sqrt{\frac{\Sigma_t-\Sigma_s}{D}}$, and $c_1$,$c_2$ are integration constants.
+Since we have only one group (group $1$) here, $\Sigma_s\equiv \Sigma_{s(1\rightarrow1)}$.
+
+(Note that the diffusion coefficient $D$ and macroscopic cross-sections $\Sigma_s$ and $\Sigma_t$ are going to be different in the first wall v.s. in the blanket, hence there are two different k, denoted $k_{FW}$ and $k_{BZ}$.)
+
+To make iterating the boundary conditions easier, let's express the thickness of the first wall and thickness of the blanket as ``first wall thickness'' = $x_{FW}$, ``blanket thickness'' = $x_{BZ} - x_{FW}$, such that the interface between the blanket and the vacuum boundary is located at $x_{BZ}$.
+
+\begin{itemize}
+    \item Total number of reactions + Escaped flux = $\boldsymbol{f}$.
+    \begin{itemize}
+        \item Escaped flux $= \frac{-\phi(x)}{2D}$, where the $D$ is the diffusion coefficient for neutrons in the blanket. (given by \cite{Duderstadt})
+    \end{itemize}
+    \item flux continuity at the first-wall-blanket interface $x_{FW}$.
+    \item flux from first wall to blanket = flux from blanket to first wall at the interface interface $x_{FW}$.
+    \item at distance $\delta = \lambda_{tr}$ past the vacuum boundary, $\phi(x_{BZ} + \delta) = 0$. (given by \cite{Duderstadt})
+\end{itemize}
+
+\section{Multi-group solution}
+Here, we assume the emitted neutrons are monoenergetic, produced at 14.06MeV.
+
+The first group's equation is going to be the same, as no other groups can scatter neutrons into it.
+
+\bibliographystyle{unsrt}
+\bibliography{NeutronDiffusion}
+\end{document}

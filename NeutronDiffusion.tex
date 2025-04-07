@@ -132,7 +132,7 @@ where
     \item $\Sigma_s$ is the sum of all scattering cross-sections from the current group $i$ down to all energy groups $j$ ($\Sigma_{s(i\rightarrow j)}$, where $j\ge i$, since upscatter is assumed impossible).
 \end{itemize}
 
-\subsection{Taking advantage of the symmetry in y- and z-direction}
+\subsection{Taking advantage of the symmetry in the y- and z-direction}
 Finally, we can remove the dependence on the other two spatial dimension, such that the diffusion equation can be simplified as:
 \begin{align}
     -D \frac{d^2}{dx^2}\phi_i(x) + \Sigma_t \phi_i(x) &= \sum_j^{j\le i} \Sigma_{s(i\rightarrow j)} \phi_j(x)\\
@@ -223,7 +223,7 @@ After a somewhat-intensive evaluation of simultaneous Equations~\ref{eq:b1}, \re
         &= \left(-\frac{\flux }{2} \frac{\LFW }{\DFW } e^{\frac{\xFW }{\LFW } }\right) &\cdot e^{-\frac{\eBZ }{\LBZ }} &\frac{1-\tanh\left(\frac{\xFW }{\LFW }\right)}{\frac{\DBZ }{\LBZ } \frac{\LFW }{\DFW } \cosh\left(\frac{\eBZ-\xFW}{\LBZ }\right) + \tanh\left(\frac{\xFW }{\LFW }\right) \sinh\left(\frac{\eBZ - \xFW }{\LBZ }\right)}\label{eq:b4a}
 \end{align}
 
-Finally, this yields a flux profile as shown in Figure~\ref{fig:OneGroupFlux}.
+Finally, this yields a flux profile as shown in Figure~\ref{fig:OneGroupFlux}. To see the effect of changing different parameters interactively, please use the Desmos link \url{https://www.desmos.com/calculator/18xojespuo}.
 \begin{figure}
   \begin{subfigure}[b]{0.4\textwidth}
     \includegraphics[width=\textwidth]{OneGroupFluxBlanketAbs.png}
@@ -298,7 +298,7 @@ Since the closed-form expression for $\phi_1$, we deduce the closed-form express
 
 \subsection{Solution by induction}
 Examining the differential Equations~\ref{eq:phi2} to \ref{eq:phi4}, one can see that it resembles the form of a driven (undamped) harmonic oscillator, but with a flipped sign. Therefore, the ansatz should be of the form $$k_1 \sinh(\frac{|x|}{L}) + k_2 \cosh(-\frac{|x|}{L})\,,$$ or, equivalently, $$k_1 e^{\frac{|x|}{L}} + k_2 e^{-\frac{|x|}{L}}\,.$$
-(where $L$ is defined by Equation~\ref{eq:LDefinition}, with the appropriate group-wise macroscopic cross-sections instead). This is the same ansatz implicitly used to arrive at equation ~\ref{eq:OneGroupSwitchCase}.
+(where $L$ is defined by Equation~\ref{eq:LDefinition}, with the appropriate group-wise macroscopic cross-sections instead). This is the same ansatz implicitly used to arrive at Equation~\ref{eq:OneGroupSwitchCase}.
 
 In other words, the $i^{\text{th}}$ neutron group's flux profile $\phi_i$ for $i>1$ is going to follow the same general shape plotted on Figure~\ref{fig:OneGroupFlux}. There will be no new/ interesting new physical behaviour. The resulting reaction rate per unit area will change.
 

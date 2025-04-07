@@ -141,7 +141,7 @@ Finally, we can remove the dependence on the other two spatial dimension, such t
 
 Now that the spatial dependence is more explicitly written ($\phi_i(x)$), we can begin solving for the solution.
 
-\section{One-group solution}
+\section{One-group solution}\label{sec:OneGroup}
 This section's content is similar to the derivation on p.163-164, but the boundary conditions are different, hence a different result is produced.
 
 If we assume the cross-sections for scattering and other reactions remains constant throughout the entire neutron spectrum, then we can re-use the same scalar values of $\Sigma_t$ and $\Sigma_s$ for all of the neutrons. Considering that we are evaluating the neutron flux emitted at $x=0$, propagating left and right into a purely-absorbing (i.e. non-fissile) medium (refer to Figure~\ref{fig:collapsed_geometry}), it is intuitive that the solution is some form of exponential decay on both sides of the source, where the neutron flux the further it travels into the first wall and blanket. And indeed, by applying the appropriate boundary conditions, we can obtain that result.
@@ -154,7 +154,7 @@ Let the incident neutron flux on the first wall be $\flux $ (SI unit: m$^{-2}$s$
 Solving this equation can be made easier if we first define a variable named $L$.
 \begin{align}
     L^2 &=      \frac{D}{\Sigma_t-\Sigma_s}\nonumber\\
-    L   &=\sqrt{\frac{D}{\Sigma_t-\Sigma_s}}\,.
+    L   &=\sqrt{\frac{D}{\Sigma_t-\Sigma_s}}\,.\label{eq:LDefinition}
 \end{align}
 For the one group case ($i = 1$ only), $\Sigma_s\equiv \Sigma_{s(1\rightarrow1)}$.
 Note that the diffusion coefficient $D$ and macroscopic cross-sections $\Sigma_s$ and $\Sigma_t$ are going to be different in the first wall v.s. in the blanket, hence there are two different $D$, denoted $D_{FW}$ and $D_{BZ}$, and correspondingly, $L$ becomes $L_{FW}$ and $L_{BZ}$ respectively.
@@ -282,18 +282,27 @@ As for the number of neutrons escaping the model into the vacuum (void),
 \end{align}
 
 \section{Multi-group solution}
-To extend this model to account for reaction cross-section variation as neutron lethargy increases, one can replace the neutron spectrum $\phi(x)$ with a position-dependent vector $\ve{\phi}(x)$. Analysing $\phi_1(x)$ would give the same result as Equation~\ref{eq:OneGroupSwitchCase}. Meanwhile, solving forhigher lethargy neutron groups, we have:
+To extend this model to account for reaction cross-section variation as neutron lethargy increases, one can replace the neutron spectrum $\phi(x)$ with a position-dependent vector $\ve{\phi}(x)$.
+Here, we assume the emitted neutrons are monoenergetic, produced at the maximum energy of 14.06MeV.
+Analysing $\phi_1(x)$ would give the same result as Equation~\ref{eq:OneGroupSwitchCase}.
+Since no other groups can scatter neutrons into it, group 1's neutron flux is going to be of the same form that given by Equation~\ref{eq:OneGroupSwitchCase}. The only difference is that the constants $D$, $L$, $\delta$ in Equations~\ref{eq:b1}, \ref{eq:b2}, \ref{eq:b3}, and \ref{eq:b4} are swapped in for group 1's group-wise constants instead of the one-group constants used in Section~\ref{sec:OneGroupBoundaryCondition}.
+
+Meanwhile, solving for higher lethargy neutron groups, we have:
 \begin{align}
     D \frac{d^2}{dx^2}\phi_2(x) &= \Sigma_t \phi_2(x)  - \Sigma_{s(1\rightarrow 2)} \phi_1(x)\label{eq:phi2}\\
     D \frac{d^2}{dx^2}\phi_3(x) &= \Sigma_t \phi_3(x)  - \Sigma_{s(1\rightarrow 3)} \phi_1(x) - \Sigma_{s(2\rightarrow 3)} \phi_2(x)\label{eq:phi3}\\
     D \frac{d^2}{dx^2}\phi_4(x) &= \Sigma_t \phi_4(x)  - \Sigma_{s(1\rightarrow 4)} \phi_1(x) - \Sigma_{s(2\rightarrow 4)} \phi_2(x) - \Sigma_{s(3\rightarrow 4)} \phi_3(x)\label{eq:phi4}\\
     &\vdots \nonumber
 \end{align}
-Since the closed-form expression for $\phi_1$, we deduce the closed-form expression for $\phi_2$ with Equation~\ref{eq:phi2}; and therefore we can deduce the closed-form expression for $\phi_3$ with Equation~\ref{eq:}
+Since the closed-form expression for $\phi_1$, we deduce the closed-form expression for $\phi_2$ with Equation~\ref{eq:phi2}; and therefore we can deduce the closed-form expression for $\phi_3$ with Equation~\ref{eq:phi3}; and so on, until $\phi_i(x)\; \forall\; i$  are solved.
 
-Here, we assume the emitted neutrons are monoenergetic, produced at 14.06MeV.
+\subsection{Solution by induction}
+Examining the differential Equations~\ref{eq:phi2} to \ref{eq:phi4}, one can see that it resembles the form of a driven (undamped) harmonic oscillator, but with a flipped sign. Therefore, the ansatz should be of the form $$k_1 \sinh(\frac{|x|}{L}) + k_2 \cosh(-\frac{|x|}{L})\,,$$ or, equivalently, $$k_1 e^{\frac{|x|}{L}} + k_2 e^{-\frac{|x|}{L}}\,.$$
+(where $L$ is defined by Equation~\ref{eq:LDefinition}, with the appropriate group-wise macroscopic cross-sections instead). This is the same ansatz implicitly used to arrive at equation ~\ref{eq:OneGroupSwitchCase}.
 
-Since no other groups can scatter neutrons into it, group 1's neutron flux is going to be of the same form that given by Equation~\ref{eq:OneGroupSwitchCase}. The only difference is that the constants $D$, $L$, $\delta$ in Equations~\ref{eq:b1}, \ref{eq:b2}, \ref{eq:b3}, and \ref{eq:b4} are swapped in for group 1's group-wise constants instead of the one-group constants used in Section~\ref{sec:OneGroupBoundaryCondition}.
+In other words, the $i^{\text{th}}$ neutron group's flux profile $\phi_i$ for $i>1$ is going to follow the same general shape plotted on Figure~\ref{fig:OneGroupFlux}. There will be no new/ interesting new physical behaviour. The resulting reaction rate per unit area will change.
+
+At this stage, there is no incentive for us to solve Equations~\ref{eq:phi2} to \ref{eq:phi4} by induction, as we think this will only have minimal impact on our target quantity (neutron heating in the first wall, blanket, and neutron lost), acting as higher order correction terms that only provide marginal improvements to the accuracy of the solution to an already oversimplified model. As long as the first wall and blanket are not made of materials with large neutron-capture resonance peaks, the one-group solution provided by Section~\ref{sec:OneGroup} should suffice.
 
 \bibliographystyle{unsrt}
 \bibliography{NeutronDiffusion}

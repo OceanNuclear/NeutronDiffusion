@@ -1,8 +1,6 @@
-%`
-%\nonstopmode
 \hbadness=100000
 \documentclass[a4paper, 12pt]{article}
-\usepackage{amsmath,amsfonts,caption,float,geometry,graphicx,mathtools,pythonhighlight,textcomp,url,verbatim,subcaption,tabularx, longtable, ulem, hyperref, tikz} %,parskip
+\usepackage{amsmath,amsfonts,caption,float,geometry,graphicx,mathtools,pythonhighlight,textcomp,url,verbatim,subcaption,tabularx, longtable, ulem, hyperref, tikz}
 \geometry{ a4paper, total={170mm,257mm}, left=20mm, top=20mm}
 \newcommand{\uul}[1]{\underline{\underline{#1}}}
 \newcommand{\matr}[1]{\uul{\textbf{#1}}}
@@ -46,7 +44,7 @@ Organization:&Culham Centre for Fusion Energy
 We would like to implement an elementary way of approximating the number of neutrons passing through and absorbed by the first wall and blanket of a fusion reactor in the reactor systems code PROCESS. Since most of PROCESS's plasma simulation models uses 1D model, with ``radial distance from the center of the plasma'' as the only coordinate, it is sensible to follow the same convention when performing our neutronics calculation, and assume that we are working with a cylindrical model (Figure~\ref{fig:radial_plot}).
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.5\textwidth]{radial_plot.pdf} %Stupid latex doesn't allow two dots in the filename.
+\includegraphics[width=0.5\textwidth]{radial_plot.pdf}
 \caption{The x-z cross-section of an example neutronics model appropriate for PROCESS.} \label{fig:radial_plot}
 \end{figure}
 
@@ -55,7 +53,7 @@ Therefore, we choose to further simplify the geometry represented by Figure~\ref
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.5\textwidth]{semiinfinite_plot.pdf} %Stupid latex doesn't allow two dots in the filename.
+\includegraphics[width=0.5\textwidth]{semiinfinite_plot.pdf}
 \caption{A simple x cross-section of the an example neutronics model appropriate for PROCESS, obtained by taking a horiztonal slice of Figure~\ref{fig:radial_plot}.} \label{fig:semiinfinite_plot}
 \end{figure}
 
@@ -63,7 +61,7 @@ Since the plasma only acts as a neutrons source, and is otherwise transparent to
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.5\textwidth]{collapsed_geometry.pdf} %Stupid latex doesn't allow two dots in the filename.
+\includegraphics[width=0.5\textwidth]{collapsed_geometry.pdf}
 \caption{A simple x cross-section of the an example neutronics model appropriate for PROCESS, obtained by collapsing the neutron-transparent space in Figure~\ref{fig:semiinfinite_plot}. The blanket and first wall extends infinitely in the other two directions, i.e. vertically (up/down) and in/out of the page.} \label{fig:collapsed_geometry}
 \end{figure}
 
@@ -124,13 +122,13 @@ The diffusion coefficient $D$ is given by p.136 of \cite{Duderstadt} as:
 \begin{equation}
     D = \frac{1}{3\Sigma_{tr}} = \frac{\lambda_{tr}}{3} = \frac{1}{3(\Sigma_t - \frac{2}{3A}{\Sigma_s})}\,,
 \end{equation}
-
 where
 \begin{itemize}
     \item $A$ is, as mentioned above, the atomic number of the medium being travelled through by the neutrons;
     \item $\lambda_{tr}$ is known as the mean-free-path of neutrons (for the given energy group and medium);
-    \item $\Sigma_s$ is the sum of all scattering cross-sections from the current group $i$ down to all energy groups $j$ ($\Sigma_{s(i\rightarrow j)}$, where $j\ge i$, since upscatter is assumed impossible).
+    \item $\Sigma_s \equiv \Sigma_{s,(i\rightarrow i)}$ is scattering cross-sections from the current group $i$ back into the current group $i$.
 \end{itemize}
+For the one group analysis, we omit the group number subscript, e.g. the $(1\rightarrow 1)$ subscript of $\Sigma_s$ is omitted.
 
 \subsection{Taking advantage of the symmetry in the y- and z-direction}
 Finally, we can remove the dependence on the other two spatial dimension, such that the diffusion equation can be simplified as:
@@ -170,21 +168,11 @@ Solving Equation~\ref{eq:OneGroupDiffusionEqDifferentialForm} then gives the fol
 \end{cases}
 \end{equation}
 $c_1$, $c_2$, $c_3$, $c_4$ are all integration constants to be determined using the boundary conditions in Section~\ref{sec:OneGroupBoundaryCondition}.
-An extrapolation length of $\delta = 0.7104\,\lambda_{tr} = 0.7104\times{3D_{BZ}}$ is added onto the vacuum boundary to obtain a more realistic flux profile, to counteract the inaccuracy introduced by approximating the transport equation with a diffusion equation.
+An extrapolation length of $\delta = 0.7104\,\lambda_{tr} = 0.7104\times 3D_{BZ}$ is added onto the vacuum boundary to obtain a more realistic flux profile, to counteract the inaccuracy introduced by approximating the transport equation with a diffusion equation.
 The details of this deviation, and the why extending the vacuum boundary like such makes the diffusion approximation valid again, is explained in p.144 of \cite{Duderstadt}.
 
 \subsection{Boundary conditions}\label{sec:OneGroupBoundaryCondition}
 \begin{itemize}
-    % \item Total number of reactions + Escaped neutrons $= \flux $.
-    % \begin{itemize}
-    %     \item Escaped flux $= \frac{\phi_i(x)}{2}$.
-    %     \item Total number of (neutron-removing) reactions is the sum of all reactions excluding scattering reactions.
-    %     \begin{align}
-    %     \text{Total number of reactions per unit area} &= \int_{x>0}^{x=x_{FW}} \sum_i (\Sigma_{t,i} - \Sigma_{s,i}) \phi_i(x) dx\,,
-    %     \intertext{in the one-group scenario, this is given by}
-    %     \text{Total number of reactions per unit area} &= \int_{x>0}^{x=x_{FW}} (\Sigma_t - \Sigma_s) \phi(x) dx\,.
-    %     \end{align}
-    % \end{itemize}
     \item Neutron current density seeping out of either side of the plane source is equal to the incident neutron flux on the first wall, i.e.
     \begin{align}
         \ve{J}_x(0^+) &= \flux \nonumber\\
@@ -193,9 +181,9 @@ The details of this deviation, and the why extending the vacuum boundary like su
     for group 1 neutrons (i.e. neutrons in the same energy group as the source neutrons).
     \item Flux continuity at the first-wall-blanket interface $x_{FW}$, i.e.
     \begin{align}
-        \phi(x_{FW} - \varepsilon) &= \phi((x_{FW} + \varepsilon))\label{eq:b2}
+        \phi(x_{FW} - \varepsilon) &= \phi(x_{FW} + \varepsilon)\label{eq:b2}
         \intertext{or more formally,}
-        \lim_{\varepsilon\rightarrow0} (\phi(x_{FW} - \varepsilon)&-\phi((x_{FW} + \varepsilon))) = 0\,.\nonumber
+        \lim_{\varepsilon\rightarrow0} (\phi(x_{FW} - \varepsilon)&-\phi(x_{FW} + \varepsilon)) = 0\,.\nonumber
     \end{align}
     \item Since the flux on either side of the first-wall-blanket interface is stable (i.e. time-invariant), the neutron current density from first wall to blanket = neutron current density from blanket to first wall at the interface $x_{FW}$, i.e.
     \begin{align}
@@ -217,7 +205,7 @@ After a somewhat-intensive evaluation of simultaneous Equations~\ref{eq:b1}, \re
 
 \begin{align}
     c_2 &= \left(\frac{ \flux }{2}\right) &\cdot e^{\frac{\xFW }{\LFW } } &\frac{ \frac{\LFW }{\DFW } + \frac{\LBZ }{\DBZ }\tanh\left(\frac{\eBZ -\xFW}{\LBZ } \right)}{\cosh\left(\frac{\xFW }{\LFW }\right) + \sinh{\left(\frac{\xFW }{\LFW }\right)} \tanh\left(\frac{\eBZ -\xFW}{\LBZ } \right) \frac{\DFW }{\LFW }\frac{\LBZ }{\DBZ }}\label{eq:b1a}\\
-    c_1 &= c_2 - \frac{\LFW }{\DFW }\flux \nonumber\\
+    c_1 &= c_2 - \frac{\LFW }{\DFW }\flux\\
     c_4 &= \left(\frac{\flux }{2}\frac{\LFW }{\DFW } e^{\frac{\xFW }{\LFW } }\right) &\cdot e^{\frac{\eBZ }{\LBZ }} &\frac{1-\tanh\left(\frac{\xFW }{\LFW }\right)}{\frac{\DBZ }{\LBZ } \frac{\LFW }{\DFW } \cosh\left(\frac{\eBZ-\xFW}{\LBZ }\right) + \tanh\left(\frac{\xFW }{\LFW }\right) \sinh\left(\frac{\eBZ - \xFW }{\LBZ }\right)} \\
     c_3 &= -c_4 e^{-\frac{2(\eBZ )}{\LBZ }}\nonumber\\
         &= \left(-\frac{\flux }{2} \frac{\LFW }{\DFW } e^{\frac{\xFW }{\LFW } }\right) &\cdot e^{-\frac{\eBZ }{\LBZ }} &\frac{1-\tanh\left(\frac{\xFW }{\LFW }\right)}{\frac{\DBZ }{\LBZ } \frac{\LFW }{\DFW } \cosh\left(\frac{\eBZ-\xFW}{\LBZ }\right) + \tanh\left(\frac{\xFW }{\LFW }\right) \sinh\left(\frac{\eBZ - \xFW }{\LBZ }\right)}\label{eq:b4a}
@@ -246,11 +234,11 @@ The average number of neutron-induced reactions per unit volume between the dept
 \begin{equation}
     \text{reaction rate} = \int_{x=a}^{x=b}\Sigma\phi(x)dx\,,
 \end{equation}
-The indefinite integral is 
+The indefinite integral is for the first wall region is
 \begin{equation}
 \LFW (c_1 e^{\frac{|x|}{L_{FW}}} - c_2 e^{-\frac{|x|}{L_{FW}}})+C
 \end{equation}
- for the first wall region and 
+and for the blanket region is
 \begin{equation}
 \LBZ (c_3 e^{\frac{|x|}{L_{BZ}}} - c_4 e^{-\frac{|x|}{L_{BZ}}})+C
 \end{equation}
@@ -289,20 +277,76 @@ Since no other groups can scatter neutrons into it, group 1's neutron flux is go
 
 Meanwhile, solving for higher lethargy neutron groups, we have:
 \begin{align}
-    D \frac{d^2}{dx^2}\phi_2(x) &= \Sigma_t \phi_2(x)  - \Sigma_{s(1\rightarrow 2)} \phi_1(x)\label{eq:phi2}\\
-    D \frac{d^2}{dx^2}\phi_3(x) &= \Sigma_t \phi_3(x)  - \Sigma_{s(1\rightarrow 3)} \phi_1(x) - \Sigma_{s(2\rightarrow 3)} \phi_2(x)\label{eq:phi3}\\
-    D \frac{d^2}{dx^2}\phi_4(x) &= \Sigma_t \phi_4(x)  - \Sigma_{s(1\rightarrow 4)} \phi_1(x) - \Sigma_{s(2\rightarrow 4)} \phi_2(x) - \Sigma_{s(3\rightarrow 4)} \phi_3(x)\label{eq:phi4}\\
+    D_2 \frac{d^2}{dx^2}\phi_2(x) &= (\Sigma_{t,2} - \Sigma_{s(2\rightarrow 2)}) \phi_2(x) - \Sigma_{s(1\rightarrow 2)} \phi_1(x)\label{eq:phi2}\\
+    D_3 \frac{d^2}{dx^2}\phi_3(x) &= (\Sigma_{t,3} - \Sigma_{s(3\rightarrow 3)}) \phi_3(x) - \Sigma_{s(1\rightarrow 3)} \phi_1(x) - \Sigma_{s(2\rightarrow 3)} \phi_2(x)\label{eq:phi3}\\
+    D_4 \frac{d^2}{dx^2}\phi_4(x) &= (\Sigma_{t,4} - \Sigma_{s(4\rightarrow 4)}) \phi_4(x) - \Sigma_{s(1\rightarrow 4)} \phi_1(x) - \Sigma_{s(2\rightarrow 4)} \phi_2(x) - \Sigma_{s(3\rightarrow 4)} \phi_3(x)\label{eq:phi4}\\
     &\vdots \nonumber
 \end{align}
 Since the closed-form expression for $\phi_1$, we deduce the closed-form expression for $\phi_2$ with Equation~\ref{eq:phi2}; and therefore we can deduce the closed-form expression for $\phi_3$ with Equation~\ref{eq:phi3}; and so on, until $\phi_i(x)\; \forall\; i$  are solved.
 
 \subsection{Solution by induction}
-Examining the differential Equations~\ref{eq:phi2} to \ref{eq:phi4}, one can see that it resembles the form of a driven (undamped) harmonic oscillator, but with a flipped sign. Therefore, the ansatz should be of the form $$k_1 \sinh(\frac{|x|}{L}) + k_2 \cosh(-\frac{|x|}{L})\,,$$ or, equivalently, $$k_1 e^{\frac{|x|}{L}} + k_2 e^{-\frac{|x|}{L}}\,.$$
-(where $L$ is defined by Equation~\ref{eq:LDefinition}, with the appropriate group-wise macroscopic cross-sections instead). This is the same ansatz implicitly used to arrive at Equation~\ref{eq:OneGroupSwitchCase}.
+Examining the differential Equations~\ref{eq:phi2} to \ref{eq:phi4}, one can see that it resembles the form of a driven (undamped) harmonic oscillator, but with a flipped sign. 
+Solving for Equation~\ref{eq:phi2} with a symbolic solver engine (WolframAlpha), where we set $\phi_1(x) = c_1 e^{\frac{|x|}{L_1}} + c_2 e^{-\frac{|x|}{L_1}}$, we have
+\begin{equation}\label{eq:phi2ClosedForm}
+    \phi_2(x) = \frac{L_1^2 L_2^2}{L_1^2 - L_2^2}\frac{\Sigma_{s(1\rightarrow 2)}}{D_2} \left(c_1 e^{\frac{|x|}{L_1}} + c_2 e^{-\frac{|x|}{L_1}}\right) + k_1 e^{\frac{|x|}{L_2}} + k_2 e^{-\frac{|x|}{L_2}}\,,
+\end{equation}
+$L_2$ is given by extending definition~\ref{eq:LDefinition} to get $$L_i = \sqrt{\frac{D_i}{\Sigma_{t,i} - \Sigma{s,(i\rightarrow i)}}}\,,$$
+$$D_i = \frac{1}{3(\Sigma_{t,i} - \frac{2}{3A}\Sigma_{s,(i\rightarrow i)})}\,,$$
+$k_1$ and $k_2$ are integration constants to be determined by applying conditions.
 
-In other words, the $i^{\text{th}}$ neutron group's flux profile $\phi_i$ for $i>1$ is going to follow the same general shape plotted on Figure~\ref{fig:OneGroupFlux}. There will be no new/ interesting new physical behaviour. The resulting reaction rate per unit area will change.
+As the neutron group number $i$ increase, the closed-form expression will likely grow to be a superposition of $2i$ exponential functions, where the constants in front of the $e^{\frac{|x|}{L_i}}$ and the $e^{-\frac{|x|}{L_i}}$ term has to be determined by boundary conditions.
 
-At this stage, there is no incentive for us to solve Equations~\ref{eq:phi2} to \ref{eq:phi4} by induction, as we think this will only have minimal impact on our target quantity (neutron heating in the first wall, blanket, and neutron lost), acting as higher order correction terms that only provide marginal improvements to the accuracy of the solution to an already oversimplified model. As long as the first wall and blanket are not made of materials with large neutron-capture resonance peaks, the one-group solution provided by Section~\ref{sec:OneGroup} should suffice.
+\subsubsection{Boundary conditions}\label{sec:MultiGroupBoundaryCondition}
+The solution $\phi_2$ must be a piecewise solution, splitting at $x_{FW}$.
+\begin{align}
+    \phi_{2,FW}(x)&= \frac{L_{FW,1}^2 L_{FW,2}^2}{L_{FW,1}^2 - L_{FW,2}^2}\frac{\Sigma_{s,FW(1\rightarrow 2)}}{D_{FW,2}} \left(c_1 e^{\frac{|x|}{L_{FW,1}}} + c_2 e^{-\frac{|x|}{L_{FW,1}}}\right)&+c_5 e^{\frac{|x|}{L_{FW,2}}} + c_6 e^{-\frac{|x|}{L_{FW,2}}}\\
+    \phi_{2,BZ}(x)&= \frac{L_{BZ,1}^2 L_{BZ,2}^2}{L_{BZ,1}^2 - L_{BZ,2}^2}\frac{\Sigma_{s,BZ(1\rightarrow 2)}}{D_{BZ,2}} \left(c_3 e^{\frac{|x|}{L_{BZ,1}}} + c_4 e^{-\frac{|x|}{L_{BZ,1}}}\right)&+c_7 e^{\frac{|x|}{L_{BZ,2}}} + c_8 e^{-\frac{|x|}{L_{BZ,2}}}
+\end{align}
+such that
+\begin{equation}
+    \phi_2(x) =
+    \begin{cases}
+    \phi_{2,FW}(x) & \text{ when }\quad\;     0<|x|\le x_{FW}\,,\\
+    \phi_{2,BZ}(x) & \text{ when }x_{FW}<|x|\le x_{BZ} + \delta \,.
+    \end{cases}
+\end{equation}
+$c_1$ to $c_4$ have been defined in Section~\ref{sec:OneGroupBoundaryCondition}; and $c_5$ to $c_8$ will be determined by the boundary conditions below.
+
+With the exception of condition~\ref{eq:b1}, three of the four boundary conditions used in Section~\ref{sec:OneGroupBoundaryCondition} can be modified to apply here.
+\begin{itemize}
+    \item Flux continuity at the first-wall-blanket interface,
+    \begin{equation}\label{eq:b2Group2}
+        \phi_{2,FW}(x_{FW})=\phi_{2,BZ}(x_{FW}) \,.
+    \end{equation}
+    \item Neutron current density equality on either side of the first-wall-blanket interface,
+    \begin{equation}
+         D_{FW,2} \frac{d}{dx}\phi_{2,FW}(x)\Bigg|_{x_{FW}} = D_{BZ,2} \frac{d}{dx}\phi_{2,BZ}(x)\Bigg|_{x_{FW}}\,.
+    \end{equation}
+    \item Zero flux at the extended boundary, i.e.
+    \begin{equation}
+        \phi_{2,BZ}(x_{BZ} + \delta) = 0
+    \end{equation}
+    \begin{itemize}
+        \item Where the $\delta$ is calculated by $$\delta = 0.7104\times 3D_{BZ,2}$$
+    \end{itemize}
+\end{itemize}
+And finally, in place of condition~\ref{eq:b1}, a different condition about the total available neutron flux has to be added to fully determine the values of $c_5$ to $c_8$:
+\begin{itemize}
+    \item In a steady state, the total number of neutrons entering group 2 should be the same as the number of neutrons leaving group 2, i.e.
+    In-scatter from group 1 to group 2 = reactions removing neutrons from group 2 + escaped group 2 neutrons.
+    \begin{equation}\label{eq:b1Group2}
+        \underbrace{\int_{x>0}^{x=x_{BZ}} \Sigma_{s(1\rightarrow 2)} \phi_1(x) dx}_{\text{In-scatter}} = \underbrace{\int_{x>0}^{x=x_{BZ}} (\Sigma_{t,2} - \Sigma_{s,(2\rightarrow 2)}) \phi_2(x) dx}_{\text{neutron-removing reactions}} + \underbrace{\left(-D_{BZ,2} \frac{d}{dx}\phi_2(x)\Bigg|_{x_{BZ}}\right)}_{\text{escaped neutrons}}
+    \end{equation}
+\end{itemize}
+
+% We think that ultimately the $i^{\text{th}}$ neutron group's flux profile $\phi_i$ for $i>1$ is going to follow the same general shape plotted on Figure~\ref{fig:OneGroupFlux}. There will be no new/ interesting new physical behaviour.
+Considering the complicated boundary conditions listed in Section~\ref{sec:MultiGroupBoundaryCondition}, especially how the complexity of Equation~\ref{eq:b1Group2} will increase rapidly with every new group added, we think it will be difficult to determine the integration constants $c_5$, $c_6$, $\ldots$ etc. Therefore significant time would be required to derive a closed-form solution to the multi-group equation, via induction/recursion relation or otherwise.
+
+We think generalizing the one-group solution to a multi-group solution will only have minimal impact on our target quantity (neutron heating in the first wall, blanket, and neutron lost), acting as higher order correction terms that only provide marginal improvements to the accuracy of the solution to an already oversimplified model. We therefore decide to terminate the study here, and do not derive the closed-form multi-group solution.
+As long as the first wall and blanket are not made of materials with large neutron-capture resonance peaks, the one-group solution provided by Section~\ref{sec:OneGroup} should suffice.
+
+For the keen reader who wishes to still implement a solver that finds the exact integration constants (without explicitly solving the boundary conditions~\ref{eq:b2Group2} to \ref{eq:b1Group2}), they can simply do so using off-the-shelf optimizers. This optimization may be more tractable to solve than directly solving the PDE in Equation~\ref{eq:phi2} to \ref{eq:phi4}.
+However, those who proceed with this optimization approach are advised to ensure strict convergence to avoid accumulating errors in the integration constants, as the higher lethargy neutron group's integration constants will be solved using equations involving lower lethargy neutron groups' integration constants.
 
 \bibliographystyle{unsrt}
 \bibliography{NeutronDiffusion}

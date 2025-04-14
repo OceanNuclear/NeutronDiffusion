@@ -1,0 +1,11 @@
+Meeting with Priti Kanth on 2025-04-11 at lunchtime:
+
+Ask James Hague to characterise how wrong is the process model after calculation for some simple geometries.
+Take stuff from THOR
+    - OpenMC cross section converter,
+    - procedure they used to calculate 1D
+        - assumptions
+        - data structuring
+
+[]Read published papers from THOR - see if it's better?
+[]Ask Ivo
